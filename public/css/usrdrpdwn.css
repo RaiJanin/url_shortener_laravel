@@ -1,0 +1,23 @@
+.dropdown-transition {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.dropdown-enter {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.dropdown-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+}
+.dropdown-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+.dropdown-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+    transition: background-color 0.15s ease;
+}
