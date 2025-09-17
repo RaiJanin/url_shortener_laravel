@@ -167,5 +167,4 @@
 
 @section('jscripts')
     <script src="{{ asset('js/home-js/jscript.js') }}"></script>
-    @include('includes.scripts')
 @endsection

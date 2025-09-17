@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @yield('route-links')
     <title>Shorter - URL Shortener</title>
+    @yield('route-links')
     @include ('includes.styles')
     @include ('includes.vendor-incl')
     @yield('styles')
@@ -38,4 +38,5 @@
     @include('components.cfFire')
     @include('components.noti')
 </body>
+    @include('includes.scripts')
     @yield('jscripts')

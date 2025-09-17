@@ -53,6 +53,6 @@
 <body>
     <h1>404 Not Found</h1>
     <p>The URL you are trying to access does not exist.</p>
-    <a href="{{ url('/shorter') }}">Back to home</a>
+    <a href="{{ url('/s-app') }}">Back to home</a>
 </body>
 </html>

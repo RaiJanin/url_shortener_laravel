@@ -118,7 +118,7 @@ class HomeController extends Controller
                 'id' => $row->id,
                 'urlName' => $row->link_name,
                 'longUrl' => $row->original_url,
-                'shortUrl' => url('/') . '/' . $row->short_code,
+                'shortUrl' => url('/').'/'. $row->short_code,
             ];
         });
 

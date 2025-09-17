@@ -1,19 +1,23 @@
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorter - URL Shortener</title>
-    <link rel="stylesheet" href="style.css">
-    <?php //include BASE_PATH_TRANS.'src/includes/vendor-incl.php';?>
-    <?php //include BASE_PATH_TRANS.'src/includes/styles.php';?>
-</head>
-<body class="min-h-screen">
+@section('route-links')
+<script>
+    window.appRoutes = {
+        loadAllUrls: "{{ route('url.loadAll') }}",
+        urlLogs: "{{ url('api/logs') }}"
+    };
+</script>
+@endsection
+
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('css/links-styles/style.css') }}">
+@endsection
+
+@section('main-content')
     <div class="flex h-full">
         <div class="flex flex-col flex-1 overflow-hidden">
             
-            <?//php include BASE_PATH_TRANS. 'src/assets/ui/head.html';?>
+            @include('components.head')
 
             <div class="flex-1 overflow-auto h-full focus:outline-none">
                 <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -29,7 +33,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Total URLs</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="totalUrls"></div>
+                                                <div class="text-lg font-medium text-gray-900" id="totalUrls">0</div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -46,7 +50,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Total Clicks</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="totalClicks"></div>
+                                                <div class="text-lg font-medium text-gray-900" id="totalClicks">0</div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -66,7 +70,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Today's Clicks</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="todayClicks"></div>
+                                                <div class="text-lg font-medium text-gray-900" id="todayClicks">0</div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -86,7 +90,7 @@
                                             <dt class="text-sm font-medium text-gray-500 truncate">Expiring Soon</dt>
                                             <dt class="text-xs font-small text-gray-500 truncate">< 3 days</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="expiringSoon"></div>
+                                                <div class="text-lg font-medium text-gray-900" id="expiringSoon">0</div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -144,7 +148,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="pagination"></div>
+                        @include('components.pagination')
                     </div>
 
                 </div>
@@ -230,8 +234,8 @@
             </div>
         </div>
     </div>
+@endsection
 
-<?php //include BASE_PATH_TRANS. 'src/assets/ui/cfFire.html';?>
-<?php //include BASE_PATH_TRANS. 'src/assets/ui/noti.html';?>
-<?php //include BASE_PATH_TRANS. 'src/includes/scripts.php';?>
-<?php //include 'jscript.php';?>
+@section('jscripts')
+    <script src="{{ asset('js/links-js/jscript.js') }}"></script>
+@endsection

@@ -18,11 +18,12 @@ Route::prefix('/s-app')->group( function () {
     })->name('home');
 
     Route::get('links', function() {
-        return view('layouts.placeholder'); // page not yet implemented, display a blank page
+        return view('links.index');
     })->name('links');
 
     Route::get('account', function() {
         return view('layouts.placeholder'); // page not yet implemented, display a blank page
+       // return view('account.index');
     })->name('account');
     
 });

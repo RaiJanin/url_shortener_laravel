@@ -1,5 +1,5 @@
-<script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const refreshBtn = document.getElementById('refreshBtn');
     const searchBtn = document.getElementById('search-btn');
 
@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchIn = document.getElementById('search');
     const sortSelect = document.getElementById('sort');
     const paginationDiv = document.getElementById('pagination');
+    const paginationBord = document.getElementById('paginationBorder');
     const urlDetailsModal = document.getElementById('urlDetailsModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const copyBtn = document.querySelector('.copy-btn');
@@ -26,22 +27,25 @@ document.addEventListener('DOMContentLoaded', function () {
     let allUrls = [];
     let filteredUrls = [];
 
+    paginationBord.classList.add('hidden'); // always hide
+
     async function loadSavedUrls(page = 1) {
         
-
         cardContainer.innerHTML = `
-                <?php include BASE_PATH_TRANS. 'src/assets/ui/loading.html';?>
+                ${document.getElementById('loading-template').innerHTML}
             `;
 
         try {
             const formData = new FormData();
+            const searchValue = searchIn.value;
+            const sortSelectValue = sortSelect.value.toLowerCase().replace(" ","");
             formData.append("page", page);
-            formData.append("search", searchIn.value);
-            formData.append("sort", sortSelect.value.toLowerCase().replace(" ",""));
+            formData.append("search", searchValue);
+            formData.append("sort", sortSelectValue);
 
-            const response = await fetch('../src/api/loadAll.php', {
-                method: "POST",
-                body: formData
+            const response = await fetch(`${window.appRoutes.loadAllUrls}?page=${page}&search=${searchValue}&sort=${sortSelectValue}`, {
+                method: "GET",
+                headers: {"Accept" : "application/json"}
             });
             const raw = await response.text();
             let result;
@@ -63,11 +67,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("expiringSoon").textContent = result.stats.expiring_soon;
             }
 
-            if (result.data.length === 0 && result.has_data === false) {
+            if (!result.hasData) {
                 paginationDiv.classList.add('hidden');
                 cardContainer.innerHTML = `
                     <div class="col-span-full w-full" style="text-align:center; ">
-                        <?php include BASE_PATH_TRANS. 'src/assets/ui/zero-dat.html';?>
+                        <!--${document.getElementById('zero-dat').innerHTML}-->
+                        <div class="error-container">
+                            <div class="no-data-icon">
+                                <i class="fa fa-wrench fa-2x text-white" aria-hidden="true"></i>
+                            </div>
+                            
+                            <h2 class="error-title">Feature under development</h2>
+                            
+                            <div class="info-box">
+                                <h4>Current Status</h4>
+                                <p>Functions for this feature are under development</p>
+                            </div>
+                        </div>
                     </div>`;
                 showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>${result.message}`);
                 return;
@@ -76,8 +92,6 @@ document.addEventListener('DOMContentLoaded', function () {
             cardContainer.innerHTML = '';
             cardContainer.innerHTML = result.data.map(url => {
 
-                
-            
                 let exBadge = "";
                 let clkMsg = "";
                 if(url.expires_at == null && url.expire_warning == false) {
@@ -137,14 +151,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             paginationDiv.classList.remove('hidden');
             paginationDiv.innerHTML = '';
-            paginationDiv.innerHTML = handlePagination(result.page, result.totalPages, result.perPage, result.total);
+            paginationDiv.innerHTML = handlePagination(result);
             
         } catch (error) {
             console.error(error);
             paginationDiv.classList.add('hidden');
             cardContainer.innerHTML = `
                     <div class="col-span-full w-full" style="text-align:center; ">
-                        <?php include BASE_PATH_TRANS. 'src/assets/ui/error-dat.html';?>
+                        ${document.getElementById('error-dat').innerHTML}
                     </div>
                     `;
 
@@ -156,8 +170,6 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>Failed to load URLs.');
         }
     }
-
-    <?php include BASE_PATH_TRANS. 'src/assets/js/pagination.js';?>
 
     function addEventListeners() {
 
@@ -178,12 +190,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.style.overflow = 'hidden';
                 console.log(currentUrlId);
                 
-                fetch('../src/api/lnkDetails.php', {
-                    method : 'POST',
-                    headers : {'Content-type': 'application/json'},
-                    body : JSON.stringify({
-                        urlId : currentUrlId
-                    })
+                fetch(`${window.appRoutes.urlLogs}/${currentUrlId}`, {
+                    method : 'GET',
+                    headers : {"Accept" : "application/json"}
                 }).then (async res => {
                     const text = await res.text();
                     try{
@@ -300,4 +309,3 @@ document.addEventListener('DOMContentLoaded', function () {
     loadSavedUrls(1);
     window.loadSavedUrls = loadSavedUrls;
 });
-</script>
