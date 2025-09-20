@@ -83,19 +83,19 @@ class HomeController extends Controller
                     break;
             }
 
-            Urls::create([
-                'link_name' => $linkName,
-                'original_url' => $longUrl,
-                'short_code' => $shortCode,
-                'clicks' => 0,
-                'expires_at' => $expiryDate
-            ]);
+            $url = new Urls();
+            $url->original_url = $longUrl;
+            $url->link_name = $linkName;
+            $url->short_code = $shortCode;
+            $url->clicks = 0;
+            $url->expires_at = $expiryDate;
+            $url->save();
 
             return response()->json([
                 'success' => true,
-                'shortUrl' => url($shortCode),
+                'shortUrl' => url($shortCode),  //url('/').'/'.$shortCode,
                 'originalUrl' => $longUrl,
-                'linkName' => $linkName
+                'linkName' => $linkName 
             ]);
         } 
         else 
@@ -103,7 +103,7 @@ class HomeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Url already exists.'
-            ], 422);
+            ]);
         }
     }
 
@@ -118,7 +118,7 @@ class HomeController extends Controller
                 'id' => $row->id,
                 'urlName' => $row->link_name,
                 'longUrl' => $row->original_url,
-                'shortUrl' => url($row->short_code),
+                'shortUrl' => url('/').'/'. $row->short_code,
             ];
         });
 
