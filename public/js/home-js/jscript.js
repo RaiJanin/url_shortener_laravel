@@ -139,6 +139,7 @@
             charcount.classList.add('hidden');
 
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center'});
+            loadSavedUrls();
         });
     });
 
@@ -181,8 +182,8 @@
             `;
 
         try {
-            const formData = new FormData();
-            formData.append("page", page);
+            // const formData = new FormData();
+            // formData.append("page", page);
 
             const response = await fetch(`${window.appRoutes.savedUrls}?page=${page}`, {
                 method: "GET",

@@ -33,7 +33,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Total URLs</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="totalUrls">0</div>
+                                                <div class="text-lg font-medium text-gray-900" id="totalUrls"></div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -50,7 +50,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Total Clicks</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="totalClicks">0</div>
+                                                <div class="text-lg font-medium text-gray-900" id="totalClicks"></div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -70,7 +70,7 @@
                                         <dl>
                                             <dt class="text-sm font-medium text-gray-500 truncate">Today's Clicks</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="todayClicks">0</div>
+                                                <div class="text-lg font-medium text-gray-900" id="todayClicks"></div>
                                             </dd>
                                         </dl>
                                     </div>
@@ -90,7 +90,7 @@
                                             <dt class="text-sm font-medium text-gray-500 truncate">Expiring Soon</dt>
                                             <dt class="text-xs font-small text-gray-500 truncate">< 3 days</dt>
                                             <dd>
-                                                <div class="text-lg font-medium text-gray-900" id="expiringSoon">0</div>
+                                                <div class="text-lg font-medium text-gray-900" id="expiringSoon"></div>
                                             </dd>
                                         </dl>
                                     </div>

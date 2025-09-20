@@ -36,12 +36,12 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
         try {
-            const formData = new FormData();
+            // const formData = new FormData();
             const searchValue = searchIn.value;
             const sortSelectValue = sortSelect.value.toLowerCase().replace(" ","");
-            formData.append("page", page);
-            formData.append("search", searchValue);
-            formData.append("sort", sortSelectValue);
+            // formData.append("page", page);
+            // formData.append("search", searchValue);
+            // formData.append("sort", sortSelectValue);
 
             const response = await fetch(`${window.appRoutes.loadAllUrls}?page=${page}&search=${searchValue}&sort=${sortSelectValue}`, {
                 method: "GET",
@@ -61,29 +61,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (result.stats) {
-                document.getElementById("totalUrls").textContent = result.stats.total_urls;
-                document.getElementById("totalClicks").textContent = result.stats.total_clicks;
-                document.getElementById("todayClicks").textContent = result.stats.clicks_today;
-                document.getElementById("expiringSoon").textContent = result.stats.expiring_soon;
+                document.getElementById("totalUrls").textContent = result.stats.totalUrls;
+                document.getElementById("totalClicks").textContent = result.stats.totalClicks;
+                document.getElementById("todayClicks").textContent = result.stats.clicksToday;
+                document.getElementById("expiringSoon").textContent = result.stats.expiringSoon;
             }
 
             if (!result.hasData) {
                 paginationDiv.classList.add('hidden');
                 cardContainer.innerHTML = `
                     <div class="col-span-full w-full" style="text-align:center; ">
-                        <!--${document.getElementById('zero-dat').innerHTML}-->
-                        <div class="error-container">
-                            <div class="no-data-icon">
-                                <i class="fa fa-wrench fa-2x text-white" aria-hidden="true"></i>
-                            </div>
-                            
-                            <h2 class="error-title">Feature under development</h2>
-                            
-                            <div class="info-box">
-                                <h4>Current Status</h4>
-                                <p>Functions for this feature are under development</p>
-                            </div>
-                        </div>
+                        ${document.getElementById('zero-dat').innerHTML}
                     </div>`;
                 showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>${result.message}`);
                 return;
@@ -94,19 +82,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 let exBadge = "";
                 let clkMsg = "";
-                if(url.expires_at == null && url.expire_warning == false) {
+                if(url.expiresAt == null && url.expireWarning == false) {
                     exBadge = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mt-2">
                                     Expires on: Never
                                 </span>`;
                 } else 
-                if(!url.expire_warning) {
+                if(!url.expireWarning) {
                     exBadge = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 mt-2">
-                                    Expires on: ${formatDate(url.expires_at)}
+                                    Expires on: ${formatDate(url.expiresAt)}
                                 </span>`;
                 } else 
-                if(url.expire_warning) {
+                if(url.expireWarning) {
                     exBadge = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 mt-2">
-                                    Expires on: ${formatDate(url.expires_at)}
+                                    Expires on: ${formatDate(url.expiresAt)}
                                 </span>`;
                 }
 
@@ -120,17 +108,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div>
                     <div class="bg-white shadow-md rounded-lg p-4 transition duration-200 ease-in-out hover:shadow-lg">
                         <div class="flex items-center justify-between">
-                            <div class="text-lg font-medium text-gray-900 truncate w-80">${url.url_name}</div>
+                            <div class="text-lg font-medium text-gray-900 truncate w-80">${url.urlName}</div>
                         </div>
-                        <div class="text-sm text-gray-900 truncate w-60">${url.long_url}</div>
-                        <div class="text-sm font-medium text-indigo-600">${url.short_url}</div>
+                        <div class="text-sm text-gray-900 truncate w-60">${url.longUrl}</div>
+                        <div class="text-sm font-medium text-indigo-600">${url.shortUrl}</div>
                         ${clkMsg}
                         <!--<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 mt-2">
-                            Expires on: ${url.expires_at}
+                            Expires on: ${url.expiresAt}
                         </span>-->
                         ${exBadge}
                         <div class="flex items-center space-x-2 mt-4">
-                            <button class="copy-url-btn text-xs sm:text-base bg-blue-100 text-gray-600 px-2 sm:px-4 py-2 rounded-lg font-medium hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-url="${url.short_url}">
+                            <button class="copy-url-btn text-xs sm:text-base bg-blue-100 text-gray-600 px-2 sm:px-4 py-2 rounded-lg font-medium hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-url="${url.shortUrl}">
                                 <i class="fas fa-copy mr-2"></i>Copy
                             </button>
                             <button class="show-details-btn text-xs sm:text-base bg-gray-100 text-gray-600 px-2 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-200" data-url-id="${url.id}">
