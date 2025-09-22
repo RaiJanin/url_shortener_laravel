@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Shorter - URL Shortener</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('icons/link.png') }}">
     @yield('route-links')
     @include ('includes.styles')
     @include ('includes.vendor-incl')

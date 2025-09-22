@@ -23,7 +23,6 @@
     const modalUrlName = document.getElementById('modalUrlName');
     const modalOrigLink = document.getElementById('modalOriginalUrl');
     const showOrigLink = document.querySelectorAll('.show-original-btn');
-    const paginationDiv = document.getElementById('pagination');
     const closeModal = document.getElementsByClassName('closeModal')[0];
 
     const charcount = document.getElementById('charCount');
@@ -165,8 +164,7 @@
     async function loadSavedUrls(page = 1) {
         const tbody = document.querySelector('#savedUrlsTable tbody');
         const thead = document.querySelector('#savedUrlsTable thead'); 
-        const paginationBorder = document.getElementById('paginationBorder');
-        paginationBorder.classList.remove('hidden');
+        paginationBord.classList.remove('hidden');
 
          thead.innerHTML = `
             <tr>

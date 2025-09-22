@@ -4,7 +4,8 @@
 <script>
     window.appRoutes = {
         loadAllUrls: "{{ route('url.loadAll') }}",
-        urlLogs: "{{ url('api/logs') }}"
+        urlLogs: "{{ url('api/logs') }}",
+        urlUpdatePrev: "{{ url('api/uUprev') }}",
     };
 </script>
 @endsection
@@ -106,7 +107,7 @@
                                     <label for="search" class="sr-only">Search</label>
                                     <div class="relative flex items-center">
                                         <input type="text" id="search" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-l-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search URLs...">
-                                        <button class="bg-gray-200 text-gray rounded-r-md border border-gray-300 px-3 py-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" id="search-btn">
+                                        <button type="submit" class="bg-gray-200 text-gray rounded-r-md border border-gray-300 px-3 py-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" id="search-btn">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                             </svg>
@@ -168,6 +169,9 @@
                         <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">URL Details</h3>
                             <div class="mt-5">
+                                <div id="loadingOverlay" class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-20 hidden">
+                                    @include('components.loading')
+                                </div>
                                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
                                     <div>
                                         <label for="url-name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -180,7 +184,7 @@
                                         <label for="url-short" class="block text-sm font-medium text-gray-700">Short URL</label>
                                         <div class="mt-1 flex items-center">
                                             <input type="text" name="url-short" id="url-short" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100" readonly>
-                                            <button class="ml-2 p-1 rounded-full border border-gray-300 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 copy-btn" data-url="https://shrt.in/abc123">
+                                            <button class="ml-2 p-1 rounded-full border border-gray-300 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 copy-btn" data-url="">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
@@ -190,11 +194,17 @@
                                     
                                     <div class="sm:col-span-2">
                                         <label for="url-long" class="block text-sm font-medium text-gray-700">Destination URL</label>
-                                        <div class="mt-1">
-                                            <input type="text" name="url-long" id="url-long" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100" readonly>
-                                        </div>
+                                            <div class="mt-1">
+                                                <textarea 
+                                                name="url-long" 
+                                                id="url-long" 
+                                                rows="3" 
+                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100 resize-none" 
+                                                readonly
+                                                ></textarea>
+                                            </div>
                                     </div>
-                                    
+
                                     <div>
                                         <label for="url-clicks" class="block text-sm font-medium text-gray-700">Total Clicks</label>
                                         <div class="mt-1">
@@ -224,11 +234,76 @@
                     <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
                         Close
                     </button>
-                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" class="edit-url-btn-sin mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-edit-id="">
                         Edit URL
                     </button>
-                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 text-white font-medium text-gray-700 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" class="view-url-logs mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 text-white font-medium text-gray-700 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-id-view="">
                         View Click Logs
+                    </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="urlUpdateModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">​</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Edit mode</h3>
+                            <div class="mt-5">
+                                <div id="loadingOverlayUpM" class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-20 hidden">
+                                    @include('components.loading')
+                                </div>
+                                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                                        <div class="mt-1">
+                                            <input type="text" name="url-nameUpdate" id="url-nameUpdate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Edit back-half</label>
+                                        <div class="mt-1 flex items-center">
+                                            <input type="text" name="url-domain" id="url-domain" class="text-gray-500 block w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-300" readonly>
+                                            / 
+                                            <input type="text" name="url-backHalf" id="url-backHalf" class="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100">
+                                        </div>
+                                        <p class="text-sm font-normal text-gray-700">Domain cannot change</p>
+                                    </div>
+                                    
+                                    <div class="sm:col-span-2">
+                                        <label for="url-long" class="block text-sm font-medium text-gray-700">Destination URL (cannot change)</label>
+                                            <div class="mt-1">
+                                                <textarea 
+                                                name="url-long-prev" 
+                                                id="url-long-prev" 
+                                                rows="3" 
+                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 bg-gray-100 resize-none" 
+                                                readonly
+                                                ></textarea>
+                                            </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="closeModalCancel" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                    <button type="button" id="updateUrlBtn" class="updateUrlBtn mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 text-white font-medium text-gray-700 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-edi-ID="">
+                        Save
                     </button>
                 </div>
             </div>

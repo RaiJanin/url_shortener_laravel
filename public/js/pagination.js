@@ -1,3 +1,6 @@
+const paginationDiv = document.getElementById('pagination');
+const paginationBord = document.getElementById('paginationBorder');
+
 function handlePagination(pagination) {
     const currentPage = pagination.page;
     const totalPages  = pagination.totalPages;

@@ -3,25 +3,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const refreshBtn = document.getElementById('refreshBtn');
     const searchBtn = document.getElementById('search-btn');
 
-    const confirmationModal = document.getElementById('confirmationModal');
-    const confirmBtn = document.getElementById('confirmBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-
     const cardContainer = document.getElementById('card-container');
     const searchIn = document.getElementById('search');
     const sortSelect = document.getElementById('sort');
-    const paginationDiv = document.getElementById('pagination');
-    const paginationBord = document.getElementById('paginationBorder');
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const urlDetailsModal = document.getElementById('urlDetailsModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
-    const copyBtn = document.querySelector('.copy-btn');
-
     const urlName = document.getElementById('url-name');
     const urlShort = document.getElementById('url-short');
     const urlLong = document.getElementById('url-long');
     const urlCreated = document.getElementById('url-created');
     const urlClicks = document.getElementById('url-clicks');
     const urlExpires = document.getElementById('url-expires');
+
+    const copyBtn = document.querySelector('.copy-btn');
+
+    const editUrlBtn = document.querySelector('.edit-url-btn-sin');
+    const viewLogsBtn = document.querySelector('.view-url-logs');
+
+    const loadingOverlayUpM = document.getElementById('loadingOverlayUpM');
+    const urlUpdateModal = document.getElementById('urlUpdateModal');
+    const updateUrlBtn = document.getElementById('updateUrlBtn');
+    const updateCancelBtn = document.getElementById('closeModalCancel');
+    const urlNameUpdt = document.getElementById('url-nameUpdate');
+    const urlDomain = document.getElementById('url-domain');
+    const urlbackHalf = document.getElementById('url-backHalf');
+    const origUrl = document.getElementById('url-long-prev');
 
     let currentUrlId = null;
     let allUrls = [];
@@ -36,13 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
         try {
-            // const formData = new FormData();
+            
             const searchValue = searchIn.value;
             const sortSelectValue = sortSelect.value.toLowerCase().replace(" ","");
-            // formData.append("page", page);
-            // formData.append("search", searchValue);
-            // formData.append("sort", sortSelectValue);
-
+            
             const response = await fetch(`${window.appRoutes.loadAllUrls}?page=${page}&search=${searchValue}&sort=${sortSelectValue}`, {
                 method: "GET",
                 headers: {"Accept" : "application/json"}
@@ -176,8 +181,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentUrlId = button.getAttribute('data-url-id');
                 urlDetailsModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
-                console.log(currentUrlId);
-                
+                loadingOverlay.classList.remove('hidden');
+
                 fetch(`${window.appRoutes.urlLogs}/${currentUrlId}`, {
                     method : 'GET',
                     headers : {"Accept" : "application/json"}
@@ -191,28 +196,30 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
 
                         let clkMsg = "";
-                        if(!data.has_click_logs) {
+                        if(!data.hasClickLogs) {
                             clkMsg = "No Click Logs Yet";
                         } else {
-                            clkMsg = data.link_details.clicks;
+                            clkMsg = data.clicks;
                         }
                         console.log(data);
 
                         let expiryDate = "";
-                        if(data.link_details.expiry_date == null) {
+                        if(data.expiryDate == null) {
                             expiryDate = "Never";
                         } else {
-                            expiryDate = formatDate(data.link_details.expiry_date);
+                            expiryDate = formatDate(data.expiryDate);
                         }
 
-                        urlName.value = data.link_details.web_name;
-                        urlShort.value = data.link_details.short_url;
-                        urlLong.value = data.link_details.long_url;
-                        urlCreated.value = formatDate(data.link_details.created_at);
+                        urlName.value = data.linkName;
+                        urlShort.value = data.shortUrl;
+                        urlLong.value = data.link;
+                        urlCreated.value = formatDate(data.dateCreated);
                         urlClicks.value = clkMsg;
                         urlExpires.value = expiryDate;
 
-                        copyBtn.setAttribute('data-url', data.link_details.short_url);
+                        copyBtn.setAttribute('data-url', data.shortUrl);
+                        editUrlBtn.setAttribute('data-edit-id' ,data.id);
+                        viewLogsBtn.setAttribute('data-id-view', data.id);
 
                         copyBtn.addEventListener('click', function (e) {
                             e.preventDefault();
@@ -220,6 +227,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             navigator.clipboard.writeText(urlToCopy).then(() => {
                                 showNotification('<i class="fa-solid fa-paperclip w-10" style="color: green;"></i>URL copied to clipboard!');
                             });
+                        });
+
+                        editUrlBtn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const editUrlId = this.getAttribute('data-edit-id');
+                            urlUpdateModal.classList.remove('hidden');
+                            loadingOverlayUpM.classList.remove('hidden');
+                            console.log("Edit URL Mode ID (eventListen): "+editUrlId);
+                            editUrl(editUrlId);
                         });
 
                     } catch(err) {
@@ -230,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.error("Network or fetch error:", error);
                     showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Unable to reach server.`);
                 }).finally(() => {
-                        // disable loading ui
+                        loadingOverlay.classList.add('hidden');
                 });
             });
         });
@@ -238,6 +254,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.edit-url-btn').forEach(button => {
             button.addEventListener('click', function () {
                 currentUrlId = button.getAttribute('data-url-id');
+                urlUpdateModal.classList.remove('hidden');
+                loadingOverlayUpM.classList.remove('hidden');
+                console.log("Edit URL Mode ID (queryAll): "+currentUrlId);
+                editUrl(currentUrlId);
             });
         });
 
@@ -261,6 +281,41 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${month}/${day}/${year}`;
     }
 
+    function editUrl(urlId) {
+
+        console.log("Received ID: "+urlId);
+
+        fetch(`${window.appRoutes.urlUpdatePrev}/${urlId}`, {
+            method : 'GET',
+            headers : {"Accept" : "application/json"}
+        }).then (async res => {
+            const text = await res.text();
+            try{
+                const data = JSON.parse(text);
+                if(!data.success) {
+                    showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>${data.message}`);
+                    return;
+                }
+
+                urlNameUpdt.value = data.linkName;
+                urlDomain.value = data.urlDomain;
+                urlbackHalf.value = data.shortCode;
+                origUrl.value = data.longUrl;
+
+                updateUrlBtn.setAttribute('data-edi-ID', data.id);
+
+            } catch(err) {
+                console.error(err);
+            }
+
+        }).catch(error => {
+            console.error("Network or fetch error:", error);
+            showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Unable to reach server.`);
+        }).finally(() => {
+                loadingOverlayUpM.classList.add('hidden');
+        });
+    }
+
     function deleteUrl(urlId) { //delete functionality move inside the event listener
         // Implement the delete URL functionality here
         console.log(`Deleting URL with ID: ${urlId}`);
@@ -279,7 +334,11 @@ document.addEventListener('DOMContentLoaded', function () {
         copyBtn.setAttribute('data-url', '');
         urlDetailsModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-    })
+    });
+
+    updateCancelBtn.addEventListener('click', () => {
+        urlUpdateModal.classList.add('hidden');
+    });
 
     refreshBtn.addEventListener('click', () => {
         loadSavedUrls();

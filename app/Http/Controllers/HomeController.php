@@ -79,7 +79,6 @@ class HomeController extends Controller
                         'success' => false,
                         'message' => 'Invalid date selection'
                     ]);
-                    return;
                     break;
             }
 

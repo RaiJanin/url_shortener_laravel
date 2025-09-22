@@ -18,7 +18,19 @@ class UrlListController extends Controller
             abort(404);
         }
 
+        if(Urls::where('clicks')->count() == 0)
+        {
+            $hasClickLogs = false;
+        }
+        else
+        {
+            $hasClickLogs = true;
+        }
+
         return response()->json([
+            'success' => true,
+            'hasClickLogs' => $hasClickLogs,
+            'id' => $url->id,
             'linkName' => $url->link_name,
             'shortUrl' => url($url->short_code),
             'link' => $url->original_url,
@@ -93,7 +105,7 @@ class UrlListController extends Controller
 
         $totalUrls = Urls::count() ?? 0;
         $totalClicks = Urls::sum('clicks') ?? 0;
-        //$todayClicks = UrlClicks::whereDate('clicked_at', today())->count() ?? 0;
+        $todayClicks = UrlClicks::whereDate('created_at', today())->count() ?? 0;
         $expiringSoon = Urls::whereNotNull('expires_at')->where('expires_at', '<', now()->addDays(3))->count() ?? 0;
 
         return response()->json([
@@ -103,7 +115,7 @@ class UrlListController extends Controller
             'stats'=> [
                 'totalUrls' => $totalUrls,
                 'totalClicks' => $totalClicks,
-                'clicksToday' => 0,
+                'clicksToday' => $todayClicks,
                 'expiringSoon' => $expiringSoon,
             ],
             'page' => $data->currentPage(),
@@ -111,6 +123,30 @@ class UrlListController extends Controller
             'perPage' => $data->perPage(),
             'total' => $data->total(),
             'message' => 'Data loaded successfully'
+        ]);
+    }
+
+    public function urlUpdatePreview($updateId)
+    {
+        $show = Urls::select('id', 'link_name', 'short_code', 'original_url')->find($updateId);
+
+        if(!$show)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Url not found',
+                'id' => $updateId
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'id' => $show->id,
+            'linkName' => $show->link_name,
+            'shortCode' => $show->short_code,
+            'urlDomain' => url('/'),
+            'longUrl' => $show->original_url,
+            'shortUrl' => url($show->short_code)
         ]);
     }
 }
