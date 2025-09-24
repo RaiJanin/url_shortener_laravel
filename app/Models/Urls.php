@@ -11,7 +11,7 @@ class Urls extends Model
 
     protected $fillable = ['link_name', 'original_url', 'short_code', 'clicks', 'expires_at'];
 
-    public function clicks()
+    public function clickLogs()
     {
         return $this->hasMany(UrlClicks::class, 'url_id');
     }

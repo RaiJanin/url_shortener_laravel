@@ -55,4 +55,5 @@
     <p>The URL you are trying to access does not exist.</p>
     <a href="{{ url('/s-app') }}">Back to home</a>
 </body>
+@include('components.footer')
 </html>

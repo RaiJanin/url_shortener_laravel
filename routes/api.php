@@ -14,6 +14,6 @@ Route::post('/crteCod', [HomeController::class, "createShortUrl"])->name('url.cr
 Route::get('/svdf', [HomeController::class, "savedUrls"])->name('url.savedUrls');
 
 //------ UrlListController
-Route::get('/logs/{id}', [UrlListController::class, "clickLogs"]);
+Route::get('/lDetails/{id}', [UrlListController::class, "linkDetails"]);
 Route::get('/aLu', [UrlListController::class, "loadAllUrls"])->name('url.loadAll');
 Route::get('/uUprev/{id}', [UrlListController::class, "urlUpdatePreview"]);

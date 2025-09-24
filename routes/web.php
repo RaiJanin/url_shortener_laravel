@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UrlListController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,8 +29,13 @@ Route::prefix('/s-app')->group( function () {
     
 });
 
-//------Example pages
-Route::get('/s-app-example', function () { return view('ui.click_logs'); });
+//------Link Logs
+Route::get('/s-app/logs', [UrlListController::class, "clickLogs"])->name('url.logs');
+
+//-------Show logs page without query
+Route::get('/s-app/logs-no-query', function () {
+    return view('ui.click_logs');
+});
 
 //------Link redirect under HomeController
 Route::get('/{code}', [HomeController::class, "redirectToLink"])->name('url.redirect');

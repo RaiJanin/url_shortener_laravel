@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Urls;
 use App\Models\UrlClicks;
 use Illuminate\Http\Request;
+use App\Services\IdentifierService;
 
 use DateTime;
 
 class UrlListController extends Controller
 {
-    public function clickLogs($Id)
+    public function linkDetails($Id)
     {
         $url = Urls::findOrFail($Id);
         if(!$url) {
@@ -37,6 +38,59 @@ class UrlListController extends Controller
             'clicks' => $url->clicks,
             'expiryDate' => $url->expires_at,
             'dateCreated' => $url->created_at
+        ]);
+    }
+
+    public function clickLogs(Request $request)
+    {
+        $linkData = Urls::with('clickLogs')->findOrFail($request->url_id);
+
+        $totalClicks = UrlClicks::where('url_id', $request->url_id)->count() ?? 0;
+        $todayClicks = UrlClicks::where('url_id', $request->url_id)->whereDate('clicked_at', now())->count() ?? 0;
+
+        if($totalClicks == 0)
+        {
+            $hasClickLogs = false;
+            $message = 'No click logs yet';
+        }
+        else
+        {
+            $hasClickLogs = true;
+            $message = 'Click logs found';
+        }
+
+        $clickLogs = $linkData->clickLogs;
+
+        $logData = $clickLogs->map(function ($log) {
+            $ua  = IdentifierService::parseUserAgent($log->user_agent);
+            $ref = IdentifierService::parseReferrer($log->referrer);
+            $loc = IdentifierService::getLocation($log->ip_address);
+
+            return [
+                'clickedAt'   => $log->clicked_at,
+                'device'       => $ua['device'],
+                'deviceType'  => $ua['os'],
+                'source'       => $ua['browser'],
+                'location'     => $loc,
+                'referrer'     => $ref
+            ];
+        });
+
+        $dailyClicks = UrlClicks::selectRaw('DATE(clicked_at) as clickDate, COUNT(*) as dayTotal')->where('url_id', $request->url_id)->groupBy('clickDate')->orderByDesc('clickDate')->get();
+
+        return response()->json([
+            'success' => true,
+            'hasClickLogs' => $hasClickLogs,
+            'message' => $message,
+            'totalClicks' => $totalClicks,
+            'todayClicks' => $todayClicks,
+            'linkName' => $linkData->link_name,
+            'OrigLink' => $linkData->original_url,
+            'shortUrl' => url($linkData->short_code),
+            'linkCreated' => $linkData->created_at,
+            'expiryDate' => $linkData->expires_at ?? 'Never',
+            'clickLogs' => $logData,
+            'dailyClicks' => $dailyClicks
         ]);
     }
 

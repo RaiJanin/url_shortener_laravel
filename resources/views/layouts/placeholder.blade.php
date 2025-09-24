@@ -55,4 +55,5 @@
     <p>Feature is under construction.</p>
     <a href="{{ url('/s-app') }}">Back to home</a>
 </body>
+@include('components.footer')
 </html>

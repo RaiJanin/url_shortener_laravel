@@ -238,6 +238,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             editUrl(editUrlId);
                         });
 
+                        viewLogsBtn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const thisID = this.getAttribute('data-id-view');
+                            console.log("View URL Mode ID: "+thisID);
+                            viewLinkLogs(thisID);
+                        });
+
                     } catch(err) {
                         console.error(err);
                     }
@@ -314,6 +321,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }).finally(() => {
                 loadingOverlayUpM.classList.add('hidden');
         });
+    }
+
+    function viewLinkLogs(vID) {
+        console.log("Received ID: "+vID);
+        window.location.href='/s-app/logs?url_id='+vID;
     }
 
     function deleteUrl(urlId) { //delete functionality move inside the event listener
