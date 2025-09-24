@@ -105,7 +105,7 @@ class UrlListController extends Controller
 
         $totalUrls = Urls::count() ?? 0;
         $totalClicks = Urls::sum('clicks') ?? 0;
-        $todayClicks = UrlClicks::whereDate('created_at', today())->count() ?? 0;
+        $todayClicks = UrlClicks::whereDate('clicked_at', today())->count() ?? 0;
         $expiringSoon = Urls::whereNotNull('expires_at')->where('expires_at', '<', now()->addDays(3))->count() ?? 0;
 
         return response()->json([

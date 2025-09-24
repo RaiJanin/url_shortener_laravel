@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('ip_address')->nullable();
             $table->text('user_agent')->nullable();
             $table->string('referrer')->nullable();
-            $table->timestamps();
+            $table->timestamp('clicked_at')->useCurrent();
         });
     }
 

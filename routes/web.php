@@ -23,10 +23,13 @@ Route::prefix('/s-app')->group( function () {
 
     Route::get('account', function() {
         return view('layouts.placeholder'); // page not yet implemented, display a blank page
-       // return view('account.index');
+       //return view('account.index');
     })->name('account');
     
 });
+
+//------Example pages
+Route::get('/s-app-example', function () { return view('ui.click_logs'); });
 
 //------Link redirect under HomeController
 Route::get('/{code}', [HomeController::class, "redirectToLink"])->name('url.redirect');

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\UrlClicks;
 use Illuminate\Http\Request;
 use App\Models\Urls;
+
 
 class HomeController extends Controller
 {
@@ -147,10 +149,26 @@ class HomeController extends Controller
     function redirectToLink ($code) 
     {
         $url = Urls::where('short_code', $code)->first();
-        if(!$url) {
+
+        if(!$url) 
+        {
             return view('error.index');
         }
+
+        $ip = request()->ip();
+        $userAgent = request()->header('User-Agent');
+        $referrer = request()->headers->get('referrer', 'Direct');
+
+        UrlClicks::create([
+            'url_id' => $url->id,
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+            'referrer' => $referrer,
+            'clicked_at' => now()
+        ]);
+
         $url->increment('clicks');
-        return redirect($url->original_url);
+        return redirect()->away($url->original_url);
+        
     }
 }
