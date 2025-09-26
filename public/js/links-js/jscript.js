@@ -30,10 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const urlDomain = document.getElementById('url-domain');
     const urlbackHalf = document.getElementById('url-backHalf');
     const origUrl = document.getElementById('url-long-prev');
+    
+    const errorUpdateUrl = document.getElementById('errorUpdateURL');
 
     let currentUrlId = null;
-    let allUrls = [];
-    let filteredUrls = [];
 
     paginationBord.classList.add('hidden'); // always hide
 
@@ -179,102 +179,27 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.show-details-btn').forEach(button => {
             button.addEventListener('click', function () {
                 currentUrlId = button.getAttribute('data-url-id');
-                urlDetailsModal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-                loadingOverlay.classList.remove('hidden');
-
-                fetch(`${window.appRoutes.urlLogs}/${currentUrlId}`, {
-                    method : 'GET',
-                    headers : {"Accept" : "application/json"}
-                }).then (async res => {
-                    const text = await res.text();
-                    try{
-                        const data = JSON.parse(text);
-                        if(!data.success) {
-                            showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>${data.message}`);
-                            return;
-                        }
-
-                        let clkMsg = "";
-                        if(!data.hasClickLogs) {
-                            clkMsg = "No Click Logs Yet";
-                        } else {
-                            clkMsg = data.clicks;
-                        }
-                        console.log(data);
-
-                        let expiryDate = "";
-                        if(data.expiryDate == null) {
-                            expiryDate = "Never";
-                        } else {
-                            expiryDate = formatDate(data.expiryDate);
-                        }
-
-                        urlName.value = data.linkName;
-                        urlShort.value = data.shortUrl;
-                        urlLong.value = data.link;
-                        urlCreated.value = formatDate(data.dateCreated);
-                        urlClicks.value = clkMsg;
-                        urlExpires.value = expiryDate;
-
-                        copyBtn.setAttribute('data-url', data.shortUrl);
-                        editUrlBtn.setAttribute('data-edit-id' ,data.id);
-                        viewLogsBtn.setAttribute('data-id-view', data.id);
-
-                        copyBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const urlToCopy = this.getAttribute('data-url');
-                            navigator.clipboard.writeText(urlToCopy).then(() => {
-                                showNotification('<i class="fa-solid fa-paperclip w-10" style="color: green;"></i>URL copied to clipboard!');
-                            });
-                        });
-
-                        editUrlBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const editUrlId = this.getAttribute('data-edit-id');
-                            urlUpdateModal.classList.remove('hidden');
-                            loadingOverlayUpM.classList.remove('hidden');
-                            console.log("Edit URL Mode ID (eventListen): "+editUrlId);
-                            editUrl(editUrlId);
-                        });
-
-                        viewLogsBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            const thisID = this.getAttribute('data-id-view');
-                            console.log("View URL Mode ID: "+thisID);
-                            viewLinkLogs(thisID);
-                        });
-
-                    } catch(err) {
-                        console.error(err);
-                    }
-
-                }).catch(error => {
-                    console.error("Network or fetch error:", error);
-                    showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Unable to reach server.`);
-                }).finally(() => {
-                        loadingOverlay.classList.add('hidden');
-                });
+                showLinkDetails(currentUrlId);
             });
         });
 
         document.querySelectorAll('.edit-url-btn').forEach(button => {
-            button.addEventListener('click', function () {
+            button.onclick = function () {
                 currentUrlId = button.getAttribute('data-url-id');
                 urlUpdateModal.classList.remove('hidden');
                 loadingOverlayUpM.classList.remove('hidden');
                 console.log("Edit URL Mode ID (queryAll): "+currentUrlId);
                 editUrl(currentUrlId);
-            });
+            };
         });
 
         document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function () {
+            button.onclick = function () {
                 currentUrlId = button.getAttribute('data-url-id');
                 showConfirmationModal("Confirm Delete?", "Are you sure you want to delete this URL?", () => {
-                    deleteUrl(currentUrlId);
+                    deleteUrl(currentUrlId, this);
                 });
-            });
+            };
         });
         
     }
@@ -286,6 +211,85 @@ document.addEventListener('DOMContentLoaded', function () {
         let day = String(d.getDate()).padStart(2, '0');
         let year = d.getFullYear();
         return `${month}/${day}/${year}`;
+    }
+
+    function showLinkDetails(sID) {
+        urlDetailsModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingOverlay.classList.remove('hidden');
+
+        fetch(`${window.appRoutes.urlLogs}/${sID}`, {
+            method : 'GET',
+            headers : {"Accept" : "application/json"}
+        }).then (async res => {
+            const text = await res.text();
+            try{
+                const data = JSON.parse(text);
+                if(!data.success) {
+                    showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i>${data.message}`);
+                    return;
+                }
+
+                let clkMsg = "";
+                if(data.clicks == 0) {
+                    clkMsg = "No Click Logs Yet";
+                } else {
+                    clkMsg = data.clicks;
+                }
+                console.log(data);
+
+                let expiryDate = "";
+                if(data.expiryDate == null) {
+                    expiryDate = "Never";
+                } else {
+                    expiryDate = formatDate(data.expiryDate);
+                }
+
+                urlName.value = data.linkName;
+                urlShort.value = data.shortUrl;
+                urlLong.value = data.link;
+                urlCreated.value = formatDate(data.dateCreated);
+                urlClicks.value = clkMsg;
+                urlExpires.value = expiryDate;
+
+                copyBtn.setAttribute('data-url', data.shortUrl);
+                editUrlBtn.setAttribute('data-edit-id' ,data.id);
+                viewLogsBtn.setAttribute('data-id-view', data.id);
+
+                copyBtn.onclick = function (e) {
+                    e.preventDefault();
+                    const urlToCopy = this.getAttribute('data-url');
+                    navigator.clipboard.writeText(urlToCopy).then(() => {
+                        showNotification('<i class="fa-solid fa-paperclip w-10" style="color: green;"></i>URL copied to clipboard!');
+                    });
+                };
+
+                editUrlBtn.onclick = function (e) {
+                    e.preventDefault();
+                    const editUrlId = this.getAttribute('data-edit-id');
+                    urlUpdateModal.classList.remove('hidden');
+                    loadingOverlayUpM.classList.remove('hidden');
+                    console.log("Edit URL Mode ID (eventListen): "+editUrlId);
+                    editUrl(editUrlId);
+                };
+
+                viewLogsBtn.onclick = function (e) {
+                    e.preventDefault();
+                    const thisID = this.getAttribute('data-id-view');
+                    console.log("View URL Mode ID: "+thisID);
+                    viewLinkLogs(this, thisID);
+                };
+
+            } catch(err) {
+                console.error(err);
+            }
+
+        }).catch(error => {
+            console.error("Network or fetch error:", error);
+            showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Unable to reach server.`);
+        }).finally(() => {
+                loadingOverlay.classList.add('hidden');
+        });
     }
 
     function editUrl(urlId) {
@@ -311,6 +315,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 updateUrlBtn.setAttribute('data-edi-ID', data.id);
 
+                updateUrlBtn.onclick = function() {
+                    updateSelUrl(data.id, urlNameUpdt.value, urlbackHalf.value, this);
+                };
+
             } catch(err) {
                 console.error(err);
             }
@@ -323,16 +331,135 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function viewLinkLogs(vID) {
+    function viewLinkLogs(button, vID) {
+
         console.log("Received ID: "+vID);
-        window.location.href='/s-app/logs?url_id='+vID;
+        button.disabled = true;
+        button.textContent = 'Redirecting...';
+        button.classList.add('active');
+        const rHref = '/s-app/logs?url_id='+vID;
+
+        const redirStatus = (url, options, timeout = 30000) => {
+            return new Promise((resolve, reject) => {
+                const timer = setTimeout(() => reject(new Error('Request timed out')), timeout);
+                fetch(url, options)
+                    .then(response => {
+                        clearTimeout(timer);
+                        resolve(response);
+                    })
+                    .catch(err => {
+                        clearTimeout(timer);
+                        reject(err);
+                        showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> ${err}`);
+                    });
+            });
+        };
+
+        redirStatus(rHref, { method: 'HEAD' }, 30000)
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = rHref; 
+                } else {
+                    throw new Error('Server responded with an error');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                button.disabled = false;
+                button.textContent = 'View Analytics';
+                button.classList.remove('active');
+                showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Failed to redirect. Please try again.`);
+            });
     }
 
-    function deleteUrl(urlId) { //delete functionality move inside the event listener
-        // Implement the delete URL functionality here
+    function updateSelUrl(eID, LinkName, BackHalf, button) {
+
+        errorUpdateUrl.classList.add('hidden');
+        button.disabled = true;
+        button.textContent = 'Updating...';
+
+        if (!LinkName) {
+            errorUpdateUrl.classList.remove('hidden');
+            errorUpdateUrl.textContent = 'Fields must not be empty';
+            urlNameUpdt.focus();
+            return;
+        }
+        if (!BackHalf) {
+            errorUpdateUrl.classList.remove('hidden');
+            errorUpdateUrl.textContent = 'Fields must not be empty';
+            urlbackHalf.focus();
+            return;
+        }
+
+        console.log('Updating url with ID: '+eID);
+
+        fetch(`${window.appRoutes.urlUpdate}/${eID}`, {
+            method: 'PUT',
+            headers: {
+                'Accept' : 'Application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                linkNameUp: LinkName,
+                backHalfUp: BackHalf
+            })
+        })
+        .then(async response => {
+            const reply = await response.json();
+            if(!reply.success) {
+                showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> ${reply.message}`);
+                return;
+            }
+            showNotification(`<i class="fa-solid fa-file-circle-check w-10" style="color:green;"></i> URL Updated Successfully`);
+            loadSavedUrls();
+            urlUpdateModal.classList.add('hidden');
+            showLinkDetails(eID);
+        })
+        .catch(err => {
+            console.error(err);
+            showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> Update failed. Please try again.`);
+        }).finally(() => {
+            button.disabled = false;
+            button.textContent = 'Save';
+            updateUrlBtn.setAttribute('data-edi-ID', '');
+        });
+    }
+
+    function deleteUrl(urlId, button) { 
         console.log(`Deleting URL with ID: ${urlId}`);
-        // After deletion, refresh the URL list
-        loadSavedUrls();
+        button.disabled = true;
+        button.textContent = 'Deleting...';
+
+        fetch(`${window.appRoutes.urlDelete}/${urlId}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept' : 'Application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                urlId: urlId
+            })
+        })
+        .then(async response => {
+            const reply = await response.json();
+
+            if(!reply.success) {
+                showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> ${reply.message}`);
+                return;
+            }
+            showNotification(`<i class="fa-solid fa-delete-left w-10" style="color:red;"></i> URL Deleted Successfully`);
+            loadSavedUrls();
+        })
+        .catch(err => {
+            console.error(err);
+            showNotification(`<i class="fa-solid fa-circle-exclamation w-10" style="color:red;"></i> URL Deletion Failed. Please try again.`);
+        })
+        .finally(() => {
+            button.disabled = true;
+            button.textContent = 'Delete';
+            currentUrlId == null;
+        });
     }
 
     closeModalBtn.addEventListener('click', () => {
@@ -344,12 +471,15 @@ document.addEventListener('DOMContentLoaded', function () {
         urlExpires.value = '';
 
         copyBtn.setAttribute('data-url', '');
+        editUrlBtn.setAttribute('data-edit-id', '');
+        viewLogsBtn.setAttribute('data-id-view', '');
         urlDetailsModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
     });
 
     updateCancelBtn.addEventListener('click', () => {
         urlUpdateModal.classList.add('hidden');
+        updateUrlBtn.setAttribute('data-edi-ID', '');
     });
 
     refreshBtn.addEventListener('click', () => {

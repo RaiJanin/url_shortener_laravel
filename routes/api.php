@@ -17,3 +17,5 @@ Route::get('/svdf', [HomeController::class, "savedUrls"])->name('url.savedUrls')
 Route::get('/lDetails/{id}', [UrlListController::class, "linkDetails"]);
 Route::get('/aLu', [UrlListController::class, "loadAllUrls"])->name('url.loadAll');
 Route::get('/uUprev/{id}', [UrlListController::class, "urlUpdatePreview"]);
+Route::put('/uUpdate/{id}', [UrlListController::class, "updateUrl"]);
+Route::delete('/delURL/{id}', [UrlListController::class, "deleteUrl"]);

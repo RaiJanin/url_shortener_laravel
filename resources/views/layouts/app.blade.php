@@ -10,6 +10,7 @@
     @include ('includes.styles')
     @include ('includes.vendor-incl')
     @yield('styles')
+    @yield('scripts')
 </head>
 <body class="min-h-screen bg-gray-50">
     @if ($errors->any())

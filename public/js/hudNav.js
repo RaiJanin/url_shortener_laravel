@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        if (currentPath === link.getAttribute('href').replace(/\/$/, "")) {
+        if (currentPath === new URL(link.href, window.location.origin).pathname.replace(/\/$/, "")) {
             link.classList.add('underline', 'decoration-white', 'text-white');
         }
     });

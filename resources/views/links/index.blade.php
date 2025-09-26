@@ -6,6 +6,8 @@
         loadAllUrls: "{{ route('url.loadAll') }}",
         urlLogs: "{{ url('api/lDetails') }}",
         urlUpdatePrev: "{{ url('api/uUprev') }}",
+        urlUpdate: "{{ url('api/uUpdate') }}",
+        urlDelete: "{{ url('api/delURL') }}"
     };
 </script>
 @endsection
@@ -239,8 +241,8 @@
                     <button type="button" class="edit-url-btn-sin mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-edit-id="">
                         Edit URL
                     </button>
-                    <button type="button" class="view-url-logs mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 text-white font-medium text-gray-700 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-id-view="">
-                        View Click Logs
+                    <button type="button" class="view-url-logs mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 text-white font-medium text-gray-700 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm active:bg-indigo-400" data-id-view="">
+                        View Analytics
                     </button>
 
                     </div>
@@ -264,6 +266,7 @@
                                 <div id="loadingOverlayUpM" class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-20 hidden">
                                     @include('components.loading')
                                 </div>
+                                <p id="errorUpdateURL" class="text-red-500 text-sm hidden"></p>
                                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Name</label>

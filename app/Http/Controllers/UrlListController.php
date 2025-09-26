@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Services\IdentifierService;
 
 use DateTime;
+use DateTimeZone;
+use Illuminate\Support\Js;
 
 class UrlListController extends Controller
 {
@@ -19,18 +21,8 @@ class UrlListController extends Controller
             abort(404);
         }
 
-        if(Urls::where('clicks')->count() == 0)
-        {
-            $hasClickLogs = false;
-        }
-        else
-        {
-            $hasClickLogs = true;
-        }
-
         return response()->json([
             'success' => true,
-            'hasClickLogs' => $hasClickLogs,
             'id' => $url->id,
             'linkName' => $url->link_name,
             'shortUrl' => url($url->short_code),
@@ -43,10 +35,24 @@ class UrlListController extends Controller
 
     public function clickLogs(Request $request)
     {
-        $linkData = Urls::with('clickLogs')->findOrFail($request->url_id);
+        $request->validate([
+            'url_id' => 'required|exists:url_codes,id',
+            'range' => 'nullable|in:7,14,30,60,120,360,all',
+        ]);
 
-        $totalClicks = UrlClicks::where('url_id', $request->url_id)->count() ?? 0;
-        $todayClicks = UrlClicks::where('url_id', $request->url_id)->whereDate('clicked_at', now())->count() ?? 0;
+        $linkData = Urls::with('clickLogs')->findOrFail($request->url_id);
+        $range = $request->range ?? 7;
+
+        if($range === 'all')
+        {
+            $range = null;
+        }
+
+        $ClickLgquery = $linkData->filterDateLogs($range);
+        $clickLogs = $ClickLgquery->get();
+
+        $totalClicks = $clickLogs->count();
+        $todayClicks = $clickLogs->filter(fn($log) => \Carbon\Carbon::parse($log->clicked_at)->isToday())->count();
 
         if($totalClicks == 0)
         {
@@ -58,8 +64,6 @@ class UrlListController extends Controller
             $hasClickLogs = true;
             $message = 'Click logs found';
         }
-
-        $clickLogs = $linkData->clickLogs;
 
         $logData = $clickLogs->map(function ($log) {
             $ua  = IdentifierService::parseUserAgent($log->user_agent);
@@ -76,10 +80,11 @@ class UrlListController extends Controller
             ];
         });
 
-        $dailyClicks = UrlClicks::selectRaw('DATE(clicked_at) as clickDate, COUNT(*) as dayTotal')->where('url_id', $request->url_id)->groupBy('clickDate')->orderByDesc('clickDate')->get();
+        $logData = $logData->sortByDesc('clickedAt')->take(50)->values();
 
-        return response()->json([
-            'success' => true,
+        $dailyClicks = $ClickLgquery->selectRaw('DATE(clicked_at) as clickDate, COUNT(*) as dayTotal')->groupBy('clickDate')->orderByDesc('clickDate')->get();
+
+        return view('ui.click-logs', [
             'hasClickLogs' => $hasClickLogs,
             'message' => $message,
             'totalClicks' => $totalClicks,
@@ -87,10 +92,16 @@ class UrlListController extends Controller
             'linkName' => $linkData->link_name,
             'OrigLink' => $linkData->original_url,
             'shortUrl' => url($linkData->short_code),
-            'linkCreated' => $linkData->created_at,
-            'expiryDate' => $linkData->expires_at ?? 'Never',
+            'linkCreated' => $linkData->created_at->format('F j, Y'),
+            'expiryDate' => $linkData->expires_at ?  $linkData->expires_at->format('F j, Y') : 'Never',
             'clickLogs' => $logData,
-            'dailyClicks' => $dailyClicks
+            'dailyClicks' => $dailyClicks,
+            'deviceStats' => $logData->groupBy('deviceType')->map->count(),
+            'geoStats' => $logData->groupBy('location')->map->count(),
+            'refferStats' => $logData->groupBy('referrer')->map->count(),
+            'filters' => [
+                'range' => $request->range ?? null
+            ]
         ]);
     }
 
@@ -202,5 +213,42 @@ class UrlListController extends Controller
             'longUrl' => $show->original_url,
             'shortUrl' => url($show->short_code)
         ]);
+    }
+
+    public function updateUrl(Request $request, $eID) {
+        
+        $url = Urls::find($eID);
+
+        if(!$url)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Url Not Found on the Server'
+            ], 404);
+        }
+
+        $request->validate([
+            'linkNameUp' => 'required|string',
+            'backHalfUp' => 'required|max:6'
+        ]);
+
+        $url->link_name = $request->linkNameUp;
+        $url->short_code = $request->backHalfUp;
+        $url->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'URL Updated Successfully'
+        ]);
+    }
+
+    public function deleteUrl($dID)
+    {
+        Urls::find($dID)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'URL Deleted Successfully'
+        ], 200);
     }
 }
