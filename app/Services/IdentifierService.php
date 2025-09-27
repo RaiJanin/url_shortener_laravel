@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Str;
+
 class IdentifierService
 {
     /**
@@ -40,7 +42,7 @@ class IdentifierService
             'semrushbot'          => 'Semrush Bot'
         ];
         foreach ($bots as $key => $label) {
-            if (strpos($uaLower, $key) !== false) {
+            if (Str::contains($uaLower, $key) !== false) {
                 return [
                     'device' => 'Bot',
                     'os' => 'Crawler',
@@ -52,9 +54,9 @@ class IdentifierService
         // --- 2. Device Detection ---
         if (preg_match('/mobile/i', $ua)) {
             $device = 'Mobile';
-        } elseif (preg_match('/tablet/i', $ua) || strpos($uaLower, 'ipad') !== false) {
+        } elseif (preg_match('/tablet/i', $ua) || Str::contains($uaLower, 'ipad') !== false) {
             $device = 'Tablet';
-        } elseif (strpos($uaLower, 'smarttv') !== false || strpos($uaLower, 'playstation') !== false || strpos($uaLower, 'xbox') !== false) {
+        } elseif (Str::contains($uaLower, 'smarttv') !== false || Str::contains($uaLower, 'playstation') !== false || Str::contains($uaLower, 'xbox') !== false) {
             $device = 'SmartTV/Console';
         } else {
             $device = 'Desktop';
@@ -84,23 +86,23 @@ class IdentifierService
         }
 
         // --- 4. Browser & In-App Apps ---
-        if (strpos($ua, 'FB_IAB') !== false || strpos($uaLower, 'fban/messenger') !== false) {
+        if (Str::contains($ua, 'FB_IAB') !== false || Str::contains($uaLower, 'fban/messenger') !== false) {
             $browser = 'Facebook/Messenger In-App';
-        } elseif (strpos($uaLower, 'instagram') !== false) {
+        } elseif (Str::contains($uaLower, 'instagram') !== false) {
             $browser = 'Instagram In-App';
-        } elseif (strpos($uaLower, 'whatsapp') !== false) {
+        } elseif (Str::contains($uaLower, 'whatsapp') !== false) {
             $browser = 'WhatsApp In-App';
-        } elseif (strpos($uaLower, 'telegram') !== false) {
+        } elseif (Str::contains($uaLower, 'telegram') !== false) {
             $browser = 'Telegram In-App';
-        } elseif (strpos($uaLower, 'line') !== false) {
+        } elseif (Str::contains($uaLower, 'line') !== false) {
             $browser = 'Line App';
-        } elseif (strpos($uaLower, 'viber') !== false) {
+        } elseif (Str::contains($uaLower, 'viber') !== false) {
             $browser = 'Viber App';
-        } elseif (strpos($uaLower, 'snapchat') !== false) {
+        } elseif (Str::contains($uaLower, 'snapchat') !== false) {
             $browser = 'Snapchat App';
-        } elseif (strpos($uaLower, 'tiktok') !== false || strpos($uaLower, 'musical.ly') !== false) {
+        } elseif (Str::contains($uaLower, 'tiktok') !== false || Str::contains($uaLower, 'musical.ly') !== false) {
             $browser = 'TikTok In-App';
-        } elseif (strpos($uaLower, 'wechat') !== false) {
+        } elseif (Str::contains($uaLower, 'wechat') !== false) {
             $browser = 'WeChat App';
         } elseif (preg_match('/edg/i', $ua)) {
             $browser = 'Edge';

@@ -80,7 +80,7 @@ class UrlListController extends Controller
             ];
         });
 
-        $logData = $logData->sortByDesc('clickedAt')->take(50)->values();
+        $logDataLim = $logData->sortByDesc('clickedAt')->take(50)->values();
 
         $dailyClicks = $ClickLgquery->selectRaw('DATE(clicked_at) as clickDate, COUNT(*) as dayTotal')->groupBy('clickDate')->orderByDesc('clickDate')->get();
 
@@ -94,7 +94,8 @@ class UrlListController extends Controller
             'shortUrl' => url($linkData->short_code),
             'linkCreated' => $linkData->created_at->format('F j, Y'),
             'expiryDate' => $linkData->expires_at ?  $linkData->expires_at->format('F j, Y') : 'Never',
-            'clickLogs' => $logData,
+            'clickLogs' => $logDataLim,
+            'LogsCount' => $logDataLim->count(),
             'dailyClicks' => $dailyClicks,
             'deviceStats' => $logData->groupBy('deviceType')->map->count(),
             'geoStats' => $logData->groupBy('location')->map->count(),

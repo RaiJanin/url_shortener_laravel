@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 mb-8">
                 <div>
                     <p class="text-md font-medium text-gray-600">Short URL: </p>
-                    <a target="_blank" class="mr-4 text font-medium text-indigo-600 hover:underline hover:decoration-indigo-500" href="http://127.0.0.1:8000/lsL2aB">
+                    <a target="_blank" class="mr-4 text font-medium text-indigo-600 hover:underline hover:decoration-indigo-500" href="{{ $shortUrl }}">
                         <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>
                         {{ $shortUrl }}
                     </a>
@@ -174,7 +174,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             <div class="bg-white rounded-lg shadow-md overflow-hidden mb-10">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-xl font-semibold text-gray-900">Recent 50 Clicks</h2>
+                    @php
+                        if($LogsCount == 50){
+                            $LogsCount = '50 (max)';
+                        }else{
+                            $LogsCount;
+                        }
+                    @endphp
+                    <h2 class="text-xl font-semibold text-gray-900">Recent 50 Clicks <span class="text-sm font-small text-gray-500">(Showing: {{ $LogsCount }} entries)</span></h2>
                 </div>
                 <div class="overflow-auto max-h-96">
                     <table class="min-w-full divide-y divide-gray-200">
