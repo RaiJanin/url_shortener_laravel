@@ -24,25 +24,30 @@
         </ul>
         <div class="relative">
             <!-- User Button -->
-            <button type="button" class="flex items-center gap-2 focus:outline-none" id="user-menu-button">
-                <span class="text-white text-sm font-medium" id="account_name"></span>
-                <div class="user-avatar bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">U</div>
-            </button>
-            
+            @auth
+                <button type="button" class="flex items-center gap-2 focus:outline-none" id="user-menu-button">
+                    <span class="text-white text-sm font-medium">{{ auth()->user()->name }}</span>
+                    <div class="user-avatar bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">U</div>
+                </button>
+            @endauth
+            @guest
+                <a href="{{ route('login') }}" class="text-white text-sm font-medium p-2 px-5 border border-gray-300 rounded-lg hover:bg-blue-500 transition-all duration-300">Log in</a>
+            @endguest
+        
             <!-- Dropdown Menu -->
             <div id="user-dropdown" class="dropdown-transition hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                <div class="px-4 py-3 border-b border-gray-100">
-                    <p class="text-sm font-medium text-gray-900">Signed in as</p>
-                    <p class="text-sm text-gray-500 truncate" id="dropdown-email"></p>
-                </div>
-                <!-- <div class="pt-1 pb-1">
-                    <a href="#" class="dropdown-item block px-4 py-2 text-sm text-gray-700">Your Profile</a>
-                    <a href="#" class="dropdown-item block px-4 py-2 text-sm text-gray-700">Settings</a>
-                    <a href="#" class="dropdown-item block px-4 py-2 text-sm text-gray-700">Notifications <span class="ml-1 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">3 new</span></a>
-                </div> -->
-                <div class="pt-1 border-t border-gray-100">
-                    <button class="dropdown-item block px-4 py-2 text-sm text-gray-700" id="logout-button">Sign out</button>
-                </div>
+                @auth
+                    <div class="px-4 py-3 border-b border-gray-100">
+                        <p class="text-sm font-medium text-gray-900">Signed in as</p>
+                        <p class="text-sm text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <div class="pt-1 border-t border-gray-100">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item block px-4 py-2 text-sm text-gray-700">Sign out</button>
+                        </form>
+                    </div>
+                @endauth
             </div>
         </div>
     </div>

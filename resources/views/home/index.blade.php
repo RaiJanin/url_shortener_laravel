@@ -112,16 +112,21 @@
             <div class="flex fixed justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold ml-10">Saved URLs</h3>
             </div>
-            <div id="savedUrlsTable" class="space-y-4 mt-10 table-text">
-                <table class="min-w-full divide-y divide-gray-200" id="savedUrlsTable">
-                    <thead>
-                        <!--Table headers-->
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Data from the server displays here-->
-                    </tbody>
-                </table>
-            </div>
+            @auth
+                <div id="savedUrlsTable" class="space-y-4 mt-10 table-text">
+                    <table class="min-w-full divide-y divide-gray-200" id="savedUrlsTable">
+                        <thead>
+                            <!--Table headers-->
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Data from the server displays here-->
+                        </tbody>
+                    </table>
+                </div>
+            @endauth
+            @guest
+                @include('components.guest')
+            @endguest
         </div>
         @include('components.pagination')
     </div>
@@ -147,5 +152,10 @@
 @endsection
 
 @section('jscripts')
-    <script src="{{ asset('js/home-js/jscript.js') }}"></script>
+    @auth
+        <script src="{{ asset('js/home-js/jscript.js') }}"></script>
+    @endauth
+    @guest
+        <script src="{{ asset('js/home-js/guest-mode.js') }}"></script>
+    @endguest
 @endsection

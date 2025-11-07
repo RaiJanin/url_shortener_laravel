@@ -1,4 +1,4 @@
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
 
     const urlInput = document.getElementById('urlInput');
     const urlName = document.getElementById('urlName');
@@ -180,8 +180,6 @@
             `;
 
         try {
-            // const formData = new FormData();
-            // formData.append("page", page);
             const formData = new FormData();
             formData.append("page", page);
 

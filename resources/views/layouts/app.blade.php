@@ -6,11 +6,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Shorter - URL Shortener</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('icons/link.png') }}">
-    @yield('route-links')
     @include ('includes.styles')
     @include ('includes.vendor-incl')
     @yield('styles')
     @yield('scripts')
+    @auth
+        @yield('route-links')
+    @endauth
 </head>
 <body class="min-h-screen bg-gray-50">
     @if ($errors->any())
