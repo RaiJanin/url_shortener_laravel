@@ -18,7 +18,7 @@
     
     @include('components.head')
 
-        <div class="header-container text-lg">
+        <div class="header-container text-lg mt-17">
             <div class="flex justify-end mr-px">
                 <button id="savedUrlsBtn" class="px-8 py-4 bg-blue-500 text-white hover:bg-blue-600 transition">
                     Saved URLs

@@ -2,7 +2,7 @@
     color: black;
     width: 100%;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 1;
 }
@@ -83,6 +83,7 @@
         gap: 2rem;
         transition: left 0.3s ease;
         box-shadow: var(--shadow);
+        z-index: 100;
     }
 
     .nav-links.show {

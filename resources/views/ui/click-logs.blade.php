@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     @include('components.head')
 
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="bg-white shadow-sm border-b border-gray-200 mt-17">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-start sm:justify-between sm:items-center py-6">
                 <h1 class="mt-4 mb-4 text-3xl font-bold text-gray-900">Short URL Analytics</h1>

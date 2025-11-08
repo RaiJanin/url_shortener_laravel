@@ -26,8 +26,8 @@
             <!-- User Button -->
             @auth
                 <button type="button" class="flex items-center gap-2 focus:outline-none" id="user-menu-button">
-                    <span class="text-white text-sm font-medium">{{ auth()->user()->name }}</span>
-                    <div class="user-avatar bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">U</div>
+                    <span class="text-white text-sm font-medium hover:text-blue-200">{{ auth()->user()->name }}</span>
+                    <div class="user-avatar bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">{{ substr(auth()->user()->name, 0, 1) }}</div>
                 </button>
             @endauth
             @guest
