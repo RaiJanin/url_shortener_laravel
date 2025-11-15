@@ -16,6 +16,14 @@
         </div>
     </div>
 
+    @if (session('success'))
+        @include('components.success')
+    @endif
+
+    @if ($errors->any())
+        @include('components.error-all')
+    @endif
+
     <div class="bg-white rounded-lg shadow-md p-6 mb-8 animate-slide-up">
         <h3 class="text-xl font-semibold text-gray-800 mb-4">Change Name</h3>
         <form action="{{ route('user.nameUpdate') }}" method="post" class="space-y-4">
@@ -23,8 +31,8 @@
             @method('patch')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="Name" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="Name" name="Name" value="{{ auth()->user()->name }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="Name" name="name" value="{{ auth()->user()->name }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                 </div>
             </div>
             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
@@ -66,11 +74,16 @@
             @csrf
             @method('patch')
             <div>
+                <button type="button" id="show-password" class="cursor-pointer p-2 text-sm font-medium hover:text-gray-500">
+                    <span class="flex items-center">
+                        <i id="check-show-pass" class="fa-solid fa-square-xmark text-red-500 text-xl"></i>
+                        <p class="ml-2">Show password</p>
+                    </span>
+                </button>
+            </div>
+            <div>
                 <label for="currentPassword" class="block text-sm font-medium text-gray-700">Current Password</label>
                 <input type="password" id="currentPassword" name="currentPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                <button type="button" id="show-password" class="p-2 text-sm font-medium hover:text-gray-500">
-                    Show password
-                </button>
             </div>
             <div>
                 <label for="newPassword" class="block text-sm font-medium text-gray-700">New Password</label>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\UrlClicks;
 use Illuminate\Http\Request;
 use App\Models\Urls;
@@ -85,6 +87,7 @@ class HomeController extends Controller
             }
 
             Urls::create([
+                'created_by' => $request->user()->uuid,
                 'link_name' => $linkName,
                 'original_url' => $longUrl,
                 'short_code' => $shortCode,
@@ -112,7 +115,7 @@ class HomeController extends Controller
     {
         Urls::whereNotNull('expires_at')->where('expires_at', '<', now())->delete();
 
-        $urls = Urls::orderBy('id', 'desc')->paginate(8);
+        $urls = auth()->user()->urlCodes()->orderBy('id', 'desc')->paginate(8);
 
         $data = $urls->map(function ($row) {
             return [

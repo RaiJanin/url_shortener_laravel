@@ -60,4 +60,15 @@ class User extends Authenticatable
             }
         });
     }
+
+    //email: rai.janinoabrenica@gmail.com
+    //pass: Rightech
+
+    //email: admin@gmail.com
+    //pass: adminrss
+
+    public function urlCodes()
+    {
+        return $this->hasMany(Urls::class, 'created_by', 'uuid');
+    }
 }

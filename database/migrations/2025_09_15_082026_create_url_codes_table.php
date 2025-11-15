@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('url_codes', function (Blueprint $table) {
             $table->id();
+            $table->uuid('created_by');
             $table->string('link_name')->nullable();
             $table->string('original_url');
             $table->string('short_code')->unique();
             $table->unsignedBigInteger('clicks');
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('created_by')->references('uuid')->on('users')
+                ->onDelete('cascade');
         });
     }
 

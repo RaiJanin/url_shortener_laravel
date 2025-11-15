@@ -111,11 +111,14 @@ class UrlListController extends Controller
         $searchVal = $request->input('search', '');
         $sortVal = $request->input('sort', 'newest');
 
-        $query = Urls::query();
+        $query = Urls::where('created_by', $request->user()->uuid);
 
         if($searchVal !== '')
         {
-            $query->where('link_name', 'like', "%{$searchVal}%")->orWhere('original_url', 'like', "%{$searchVal}%");
+            $query->where(function($qu) use ($searchVal) {
+                $qu->where('link_name', 'like', "%{$searchVal}%")
+                    ->orWhere('original_url', 'like', "%{$searchVal}%");
+            });
         }
 
         switch($sortVal)
@@ -169,10 +172,10 @@ class UrlListController extends Controller
             ];
         });
 
-        $totalUrls = Urls::count() ?? 0;
-        $totalClicks = Urls::sum('clicks') ?? 0;
-        $todayClicks = UrlClicks::whereDate('clicked_at', today())->count() ?? 0;
-        $expiringSoon = Urls::whereNotNull('expires_at')->where('expires_at', '<', now()->addDays(3))->count() ?? 0;
+        $totalUrls = Urls::where('created_by', $request->user()->uuid)->count() ?? 0;
+        $totalClicks = Urls::where('created_by', $request->user()->uuid)->sum('clicks') ?? 0;
+        $todayClicks = UrlClicks::where('created_by', $request->user()->uuid)->whereDate('clicked_at', today())->count() ?? 0;
+        $expiringSoon = Urls::where('created_by', $request->user()->uuid)->whereNotNull('expires_at')->where('expires_at', '<', now()->addDays(3))->count() ?? 0;
 
         return response()->json([
             'success' => true,

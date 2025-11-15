@@ -11,7 +11,7 @@ class Urls extends Model
 {
     protected $table = 'url_codes';
 
-    protected $fillable = ['link_name', 'original_url', 'short_code', 'clicks', 'expires_at'];
+    protected $fillable = ['created_by', 'link_name', 'original_url', 'short_code', 'clicks', 'expires_at'];
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -22,6 +22,11 @@ class Urls extends Model
     public function clickLogs()
     {
         return $this->hasMany(UrlClicks::class, 'url_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'uuid');
     }
 
     public function filterDateLogs($range = 7)

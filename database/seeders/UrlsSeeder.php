@@ -24,13 +24,14 @@ class UrlsSeeder extends Seeder
         while (($row = fgetcsv($file, 1000, ',')) !== false) {
             DB::table('url_codes')->insert([
                 'id'           => $row[0],
-                'link_name'    => $row[1],
-                'original_url' => $row[2],
-                'short_code'   => $row[3],
-                'clicks'       => $row[4],
-                'expires_at'   => (empty($row[5]) || $row[5] === '?' ? null : $row[5]),
-                'created_at'   => $row[6] ?: now(),
-                'updated_at'   => $row[7] ?: now(),
+                'created_by'   => $row[1] ?? null,
+                'link_name'    => $row[2] ?? null,
+                'original_url' => $row[3] ?? null,
+                'short_code'   => $row[4] ?? null,
+                'clicks'       => $row[5] ?? null,
+                'expires_at'   => (empty($row[6]) || $row[6] === '?' ? null : $row[6]),
+                'created_at'   => $row[7] ?? now(),
+                'updated_at'   => $row[8] ?? now(),
             ]);
         }
 
