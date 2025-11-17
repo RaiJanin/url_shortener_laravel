@@ -97,7 +97,7 @@ class HomeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'shortUrl' => url($shortCode),
+                'shortUrl' => config('app.url') . '/' . $shortCode,
                 'originalUrl' => $longUrl,
                 'linkName' => $linkName
             ]);
@@ -122,7 +122,7 @@ class HomeController extends Controller
                 'id' => $row->id,
                 'urlName' => $row->link_name,
                 'longUrl' => $row->original_url,
-                'shortUrl' => url($row->short_code),
+                'shortUrl' => config('app.url') . '/' . $row->short_code,
             ];
         });
 

@@ -25,7 +25,7 @@ class UrlListController extends Controller
             'success' => true,
             'id' => $url->id,
             'linkName' => $url->link_name,
-            'shortUrl' => url($url->short_code),
+            'shortUrl' => config('app.url') . '/' . $url->short_code,
             'link' => $url->original_url,
             'clicks' => $url->clicks,
             'expiryDate' => $url->expires_at,
@@ -91,7 +91,7 @@ class UrlListController extends Controller
             'todayClicks' => $todayClicks,
             'linkName' => $linkData->link_name,
             'OrigLink' => $linkData->original_url,
-            'shortUrl' => url($linkData->short_code),
+            'shortUrl' => config('app.url') . '/' . $linkData->short_code,
             'linkCreated' => $linkData->created_at->format('F j, Y'),
             'expiryDate' => $linkData->expires_at ?  $linkData->expires_at->format('F j, Y') : 'Never',
             'clickLogs' => $logDataLim,
@@ -165,7 +165,7 @@ class UrlListController extends Controller
                 'id' => $row->id,
                 'urlName' => $row->link_name,
                 'longUrl' => $row->original_url,
-                'shortUrl' => url($row->short_code),
+                'shortUrl' => config('app.url') . '/' . $row->short_code,
                 'clicks' => $row->clicks,
                 'expiresAt' => $row->expires_at,
                 'expireWarning' => $expireWarn
@@ -213,9 +213,9 @@ class UrlListController extends Controller
             'id' => $show->id,
             'linkName' => $show->link_name,
             'shortCode' => $show->short_code,
-            'urlDomain' => url('/'),
+            'urlDomain' => config('app.url'),
             'longUrl' => $show->original_url,
-            'shortUrl' => url($show->short_code)
+            'shortUrl' => config('app.url') . '/' . $show->short_code
         ]);
     }
 
