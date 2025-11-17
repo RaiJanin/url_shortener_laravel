@@ -174,7 +174,11 @@ class UrlListController extends Controller
 
         $totalUrls = Urls::where('created_by', $request->user()->uuid)->count() ?? 0;
         $totalClicks = Urls::where('created_by', $request->user()->uuid)->sum('clicks') ?? 0;
-        $todayClicks = UrlClicks::where('created_by', $request->user()->uuid)->whereDate('clicked_at', today())->count() ?? 0;
+        $todayClicks = UrlClicks::whereHas('urls', function ($q) use ($request) {
+                $q->where('created_by', $request->user()->uuid);
+            })
+            ->whereDate('clicked_at', today())
+            ->count() ?? 0;
         $expiringSoon = Urls::where('created_by', $request->user()->uuid)->whereNotNull('expires_at')->where('expires_at', '<', now()->addDays(3))->count() ?? 0;
 
         return response()->json([
