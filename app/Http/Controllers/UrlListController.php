@@ -91,7 +91,7 @@ class UrlListController extends Controller
             'todayClicks' => $todayClicks,
             'linkName' => $linkData->link_name,
             'OrigLink' => $linkData->original_url,
-            'shortUrl' => config('app.url') . '/' . $linkData->short_code,
+            'shortUrl' => url($linkData->short_code),
             'linkCreated' => $linkData->created_at->format('F j, Y'),
             'expiryDate' => $linkData->expires_at ?  $linkData->expires_at->format('F j, Y') : 'Never',
             'clickLogs' => $logDataLim,
